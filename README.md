@@ -1,1 +1,574 @@
 # Infoauto.github.io
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InfoAuto — Consulta cualquier placa peruana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12182B;
+    --paper:#F6F4EF;
+    --paper-2:#EDEAE1;
+    --amber:#F0A93B;
+    --steel:#3457A6;
+    --steel-deep:#243B76;
+    --slate:#6B7280;
+    --green:#2E8B57;
+    --line: rgba(18,24,43,0.10);
+    --radius: 18px;
+    --shadow: 0 10px 30px rgba(18,24,43,0.08);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk', sans-serif;
+    letter-spacing:-0.02em;
+    margin:0;
+  }
+  .mono{font-family:'Space Mono', monospace;}
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
+  .section{padding:88px 0;}
+  @media (max-width:720px){ .section{padding:56px 0;} }
+
+  /* NAV */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(246,244,239,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1120px;margin:0 auto;padding:16px 24px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .logo{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Space Grotesk';font-weight:700;font-size:20px;
+  }
+  .logo .plate-chip{
+    background:var(--ink); color:var(--paper);
+    border-radius:6px; padding:5px 8px 4px;
+    font-family:'Space Mono'; font-weight:700; font-size:13px;
+    letter-spacing:1px;
+    border:2px solid var(--amber);
+  }
+  .nav-links{display:flex; gap:28px; font-size:15px; font-weight:500;}
+  .nav-links a{text-decoration:none; opacity:0.75; transition:opacity .15s;}
+  .nav-links a:hover{opacity:1;}
+  @media (max-width:720px){ .nav-links{display:none;} }
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:13px 22px; border-radius:100px; font-weight:600; font-size:15px;
+    border:none; cursor:pointer; text-decoration:none;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{background:var(--ink); color:var(--paper);}
+  .btn-primary:hover{box-shadow:0 6px 18px rgba(18,24,43,0.25);}
+  .btn-amber{background:var(--amber); color:var(--ink);}
+  .btn-amber:hover{box-shadow:0 6px 18px rgba(240,169,59,0.4);}
+  .btn-ghost{background:transparent;border:1.5px solid var(--line); color:var(--ink);}
+
+  /* HERO */
+  .hero{padding:64px 0 40px;}
+  .badge{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--paper-2); border-radius:100px;
+    padding:8px 16px; font-size:13px; font-weight:600;
+    letter-spacing:0.03em; text-transform:uppercase; color:var(--slate);
+  }
+  .badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
+  .hero h1{
+    font-size:clamp(2.6rem, 6vw, 4.4rem);
+    line-height:0.98; font-weight:700; margin:20px 0 22px;
+  }
+  .hero h1 .accent{color:var(--steel);}
+  .hero p.lead{font-size:19px; color:var(--slate); max-width:560px; line-height:1.55; margin-bottom:28px;}
+  .hero p.lead b{color:var(--ink);}
+
+  .plan-toggle{display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap;}
+  .plan-pill{
+    border-radius:100px; padding:9px 16px; font-size:14px; font-weight:600;
+    border:1.5px solid var(--line); background:#fff;
+    display:flex; align-items:center; gap:8px;
+  }
+  .plan-pill.active{border-color:var(--amber); background:#FFF7E9;}
+  .plan-pill .star{color:var(--amber);}
+  .plan-pill .price{color:var(--steel);}
+  .plan-pill .free{color:var(--green);}
+
+  /* PLATE INPUT — signature element */
+  .search-card{
+    background:#fff; border-radius:22px; box-shadow:var(--shadow);
+    border:1px solid var(--line); padding:8px; max-width:560px;
+  }
+  .plate-input-row{display:flex; align-items:stretch; gap:0;}
+  .plate-input{
+    flex:1; display:flex; align-items:center; gap:12px;
+    padding:18px 20px; position:relative;
+  }
+  .plate-input .peru-tab{
+    writing-mode:vertical-rl; background:var(--steel); color:#fff;
+    font-size:10px; font-weight:700; letter-spacing:2px;
+    border-radius:6px; padding:6px 4px; text-transform:uppercase;
+  }
+  .plate-input input{
+    border:none; outline:none; background:transparent;
+    font-family:'Space Mono'; font-weight:700; font-size:28px;
+    letter-spacing:6px; color:var(--ink); width:100%; text-transform:uppercase;
+  }
+  .plate-input input::placeholder{color:#C9C4B8; letter-spacing:6px;}
+  .search-btn{
+    border:none; background:var(--ink); color:#fff; border-radius:16px;
+    padding:0 26px; font-weight:700; font-size:15px; cursor:pointer;
+    display:flex; align-items:center; gap:8px; white-space:nowrap;
+    transition:background .15s;
+  }
+  .search-btn:hover{background:var(--steel-deep);}
+  .search-btn:disabled{opacity:0.6; cursor:progress;}
+  .example-links{display:flex; gap:20px; margin-top:16px; font-size:14px; color:var(--slate); flex-wrap:wrap;}
+  .example-links a{text-decoration:none; display:flex; align-items:center; gap:6px; font-weight:500;}
+  .example-links a:hover{color:var(--steel);}
+
+  .hero-plate-visual{position:relative;}
+  .plate-mock{
+    background:#fff; border-radius:14px; border:3px solid var(--ink);
+    overflow:hidden; box-shadow: 0 20px 50px rgba(18,24,43,0.18);
+    max-width:340px; margin-left:auto;
+  }
+  .plate-mock .top{background:var(--steel); color:#fff; font-size:12px; font-weight:700;
+    letter-spacing:2px; text-align:center; padding:6px; text-transform:uppercase;}
+  .plate-mock .body{padding:18px 20px 22px; text-align:center;}
+  .plate-mock .plate-num{font-family:'Space Mono'; font-weight:700; font-size:38px; letter-spacing:6px;}
+  .plate-mock .sub{font-size:12px; color:var(--slate); margin-top:6px; letter-spacing:0.5px;}
+
+  /* STATS */
+  .stats-strip{background:var(--ink); color:#fff;}
+  .stats-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px;}
+  @media (max-width:720px){ .stats-grid{grid-template-columns:repeat(2,1fr);} }
+  .stat-card{background:rgba(255,255,255,0.06); border-radius:16px; padding:24px 20px; border:1px solid rgba(255,255,255,0.08);}
+  .stat-num{font-family:'Space Grotesk'; font-size:2.1rem; font-weight:700;}
+  .stat-num .amber{color:var(--amber);}
+  .stat-label{color:rgba(255,255,255,0.65); font-size:14px; margin-top:4px;}
+
+  /* DARK CTA BAND */
+  .dark-band{
+    background: radial-gradient(120% 120% at 20% 0%, #241b3a 0%, #12182B 55%, #0c1020 100%);
+    color:#fff;
+  }
+  .dark-band .eyebrow{color:var(--amber); font-weight:700; font-size:13px; letter-spacing:2px; text-transform:uppercase;}
+  .dark-band h2{font-size:clamp(2rem,4.5vw,3rem); margin:14px 0 18px; line-height:1.05;}
+  .dark-band p{color:rgba(255,255,255,0.7); font-size:17px; max-width:600px; line-height:1.6;}
+
+  /* FEATURES GRID */
+  .section-head{max-width:640px; margin-bottom:48px;}
+  .section-head .eyebrow{color:var(--steel); font-weight:700; font-size:13px; letter-spacing:2px; text-transform:uppercase;}
+  .section-head h2{font-size:clamp(1.8rem,4vw,2.6rem); margin-top:10px;}
+  .section-head p{color:var(--slate); font-size:17px; margin-top:12px;}
+
+  .features-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  @media (max-width:900px){ .features-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:600px){ .features-grid{grid-template-columns:1fr;} }
+  .feature-card{
+    background:#fff; border-radius:var(--radius); padding:26px;
+    border:1px solid var(--line); transition:transform .15s, box-shadow .15s;
+  }
+  .feature-card:hover{transform:translateY(-4px); box-shadow:var(--shadow);}
+  .feature-icon{
+    width:46px; height:46px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center; margin-bottom:16px;
+    font-size:20px;
+  }
+  .feature-card h3{font-size:17px; font-weight:700; margin-bottom:8px;}
+  .feature-card p{font-size:14.5px; color:var(--slate); line-height:1.5; margin:0;}
+
+  /* STEPS */
+  .steps{display:flex; flex-direction:column; gap:0;}
+  .step{display:flex; gap:24px; padding:28px 0; border-bottom:1px solid var(--line); align-items:flex-start;}
+  .step:last-child{border-bottom:none;}
+  .step-num{font-family:'Space Grotesk'; font-size:2.4rem; font-weight:700; color:var(--amber); min-width:64px;}
+  .step h3{font-size:20px; margin-bottom:6px;}
+  .step p{color:var(--slate); margin:0; line-height:1.5; max-width:480px;}
+
+  /* DEMO REPORT */
+  .demo-shell{
+    background:#fff; border-radius:24px; border:1px solid var(--line); box-shadow:var(--shadow);
+    padding:28px; max-width:640px; margin:0 auto;
+  }
+  .demo-note{font-size:12.5px; color:var(--slate); text-align:center; margin-top:14px;}
+  .report-progress{height:5px; background:var(--paper-2); border-radius:100px; margin:20px 0; overflow:hidden;}
+  .report-progress .fill{height:100%; width:0%; background:linear-gradient(90deg,var(--amber),var(--steel)); transition:width 1.4s ease;}
+  .report-rows{display:flex; flex-direction:column; gap:10px;}
+  .report-row{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--paper); border-radius:14px; padding:14px 16px;
+    opacity:0; transform:translateY(8px); transition:opacity .4s ease, transform .4s ease;
+  }
+  .report-row.show{opacity:1; transform:translateY(0);}
+  .report-row .left{display:flex; align-items:center; gap:12px; font-weight:600; font-size:14.5px;}
+  .report-row .ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .tag{border-radius:100px; padding:5px 12px; font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:5px;}
+  .tag.ok{background:#E7F5EC; color:var(--green);}
+  .tag.warn{background:#FDECEA; color:#C0392B;}
+  .tag.info{background:#EAF0FB; color:var(--steel);}
+
+  /* PRICING */
+  .pricing-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-items:stretch;}
+  @media (max-width:900px){ .pricing-grid{grid-template-columns:1fr; max-width:420px; margin:0 auto;} }
+  .price-card{
+    border-radius:24px; padding:32px 28px; border:1px solid var(--line); background:#fff;
+    display:flex; flex-direction:column;
+  }
+  .price-card.featured{background:var(--ink); color:#fff; border-color:var(--ink); position:relative; transform:translateY(-10px);}
+  @media (max-width:900px){ .price-card.featured{transform:none;} }
+  .price-card .plan-name{font-family:'Space Grotesk'; font-weight:700; font-size:22px;}
+  .price-card .old-price{text-decoration:line-through; color:var(--slate); font-size:15px; margin-top:14px;}
+  .price-card.featured .old-price{color:rgba(255,255,255,0.5);}
+  .price-card .price{font-family:'Space Grotesk'; font-size:2.6rem; font-weight:700; display:flex; align-items:baseline; gap:6px;}
+  .price-card .price .cur{font-size:1.1rem;}
+  .price-card .per{color:var(--slate); font-size:13.5px; margin-bottom:20px;}
+  .price-card.featured .per{color:rgba(255,255,255,0.6);}
+  .price-card ul{list-style:none; padding:0; margin:0 0 26px; display:flex; flex-direction:column; gap:11px; flex:1;}
+  .price-card li{display:flex; align-items:flex-start; gap:9px; font-size:14.5px;}
+  .price-card .pop-badge{
+    position:absolute; top:-13px; left:28px; background:var(--amber); color:var(--ink);
+    font-size:12px; font-weight:700; padding:5px 12px; border-radius:100px;
+  }
+
+  /* TESTIMONIALS */
+  .testi-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  @media (max-width:900px){ .testi-grid{grid-template-columns:1fr;} }
+  .testi-card{background:#fff; border:1px solid var(--line); border-radius:18px; padding:24px;}
+  .testi-card p{font-size:15px; line-height:1.55; color:var(--ink); margin:0 0 16px;}
+  .testi-who{display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--slate);}
+  .avatar{width:34px;height:34px;border-radius:50%; background:var(--paper-2); display:flex;align-items:center;justify-content:center; font-weight:700; color:var(--steel);}
+
+  footer{background:var(--ink); color:rgba(255,255,255,0.6); padding:48px 0 28px; font-size:14px;}
+  footer .foot-top{display:flex; justify-content:space-between; flex-wrap:wrap; gap:24px; padding-bottom:28px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:20px;}
+  footer a{text-decoration:none; color:rgba(255,255,255,0.6);}
+  footer a:hover{color:#fff;}
+
+  .fab{
+    position:fixed; bottom:24px; right:24px; z-index:60;
+    width:56px; height:56px; border-radius:50%;
+    background:var(--steel); color:#fff; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 10px 24px rgba(52,87,166,0.4); border:none; cursor:pointer; font-size:22px;
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="logo">
+      <span class="plate-chip">IA-01</span>
+      InfoAuto
+    </div>
+    <nav class="nav-links">
+      <a href="#funciones">Qué revisamos</a>
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#demo">Probar demo</a>
+      <a href="#precios">Precios</a>
+    </nav>
+    <a href="#demo" class="btn btn-primary">Consultar placa</a>
+  </div>
+</header>
+
+<section class="hero wrap">
+  <div style="display:grid; grid-template-columns:1.15fr 0.85fr; gap:48px; align-items:center;">
+    <div>
+      <span class="badge"><span class="dot"></span> Fuentes oficiales del Perú</span>
+      <h1>La historia<br>completa de <span class="accent">cualquier placa</span></h1>
+      <p class="lead">Antes de comprar, vender o simplemente confirmar que todo está en regla: <b>propietarios, SOAT, papeletas, gravámenes y más</b>, en un solo reporte.</p>
+
+      <div class="plan-toggle">
+        <div class="plan-pill active"><span class="star">★</span> Reporte completo <span class="price">S/ 8.99</span></div>
+        <div class="plan-pill">Reporte básico <span class="free">Gratis</span></div>
+      </div>
+
+      <div class="search-card">
+        <div class="plate-input-row">
+          <div class="plate-input">
+            <span class="peru-tab">PERÚ</span>
+            <input id="plateInput" type="text" maxlength="7" placeholder="ABC123" autocomplete="off">
+          </div>
+          <button class="search-btn" onclick="runLookup()">🔍 Buscar</button>
+        </div>
+      </div>
+      <div class="example-links">
+        <a href="#demo" onclick="fillExample('BSX204')">👁 Ver ejemplo básico</a>
+        <a href="#demo" onclick="fillExample('T4A891')">👁 Ver ejemplo completo</a>
+      </div>
+    </div>
+
+    <div class="hero-plate-visual">
+      <div class="plate-mock">
+        <div class="top">▮ Perú</div>
+        <div class="body">
+          <div class="plate-num">T4A891</div>
+          <div class="sub">2026 · SUV COMPACTA · GRIS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats-strip">
+  <div class="wrap" style="padding:56px 24px;">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num"><span class="amber">31K+</span></div><div class="stat-label">Consultas este mes</div></div>
+      <div class="stat-card"><div class="stat-num">28<span class="amber">+</span></div><div class="stat-label">Fuentes verificadas</div></div>
+      <div class="stat-card"><div class="stat-num">&lt;12<span class="amber">s</span></div><div class="stat-label">Tiempo de respuesta</div></div>
+      <div class="stat-card"><div class="stat-num">99.8<span class="amber">%</span></div><div class="stat-label">Disponibilidad</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="dark-band">
+  <div class="wrap section" style="max-width:1120px;">
+    <span class="eyebrow">¿Vas a comprar usado?</span>
+    <h2>No firmes nada<br>sin revisarlo primero</h2>
+    <p>Un vehículo de segunda mano puede tener deudas, papeletas sin pagar, un gravamen activo o hasta una orden de captura vigente. InfoAuto te muestra todo antes de que pongas un sol sobre la mesa.</p>
+  </div>
+</section>
+
+<section id="funciones" class="section wrap">
+  <div class="section-head">
+    <span class="eyebrow">Qué incluye el reporte</span>
+    <h2>Todo lo que necesitas saber, en un solo lugar</h2>
+    <p>Cruzamos datos de registros públicos y entidades de tránsito para armar un reporte que de otra forma tomaría días reunir.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card"><div class="feature-icon" style="background:#EFEAFB;">👤</div><h3>Propietarios</h3><p>Historial de dueños registrados, con fechas de cada transferencia.</p></div>
+    <div class="feature-card"><div class="feature-icon" style="background:#E7F0FE;">🛡️</div><h3>SOAT vigente</h3><p>Estado del seguro obligatorio, aseguradora y fecha de vencimiento.</p></div>
+    <div class="feature-card"><div class="feature-icon" style="background:#E6F6EC;">🔧</div><h3>Inspección técnica</h3><p>Historial de revisiones y próxima fecha de vencimiento.</p></div>
+    <div class="feature-card"><div class="feature-icon" style="background:#E4F7F5;">⛽</div><h3>Conversión a GNV</h3><p>Si el vehículo fue convertido a gas y si la certificación sigue vigente.</p></div>
+    <div class="feature-card"><div class="feature-icon" style="background:#FDF2DC;">🔒</div><h3>Gravámenes</h3><p>Hipotecas, prendas vehiculares o cargas que puedan frenar una transferencia.</p></div>
+    <div class="feature-card"><div class="feature-icon" style="background:#FBE9E7;">💥</div><h3>Historial de siniestros</h3><p>Choques o incidentes reportados que afectan el valor real del vehículo.</p></div>
+    <div class="feature-card"><div class="feature-icon" style="background:#FDECEC;">⚠️</div><h3>Historial de robos</h3><p>Confirmación de reportes de robo o recuperación registrados.</p></div>
+    <div class="feature-card"><div class="feature-icon" style="background:#FDECEC;">🚫</div><h3>Orden de captura</h3><p>Alerta si existe una orden vigente por papeletas o deudas impagas.</p></div>
+    <div class="feature-card"><div class="feature-icon" style="background:#EAEAF6;">📋</div><h3>Papeletas y multas</h3><p>Infracciones de tránsito pendientes o pagadas en distintas jurisdicciones.</p></div>
+  </div>
+</section>
+
+<section id="como-funciona" class="section wrap" style="background:var(--paper-2); border-radius:32px; max-width:1120px;">
+  <div style="padding:8px 32px;">
+    <div class="section-head" style="margin-bottom:8px;">
+      <span class="eyebrow">Cómo funciona</span>
+      <h2>Tres pasos, un reporte</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><div><h3>Escribe la placa</h3><p>Formato estándar peruano, por ejemplo ABC123. No necesitas más datos.</p></div></div>
+      <div class="step"><div class="step-num">02</div><div><h3>Cruzamos las fuentes</h3><p>Revisamos registros de tránsito, seguros y propiedad al mismo tiempo.</p></div></div>
+      <div class="step"><div class="step-num">03</div><div><h3>Descarga tu reporte</h3><p>En segundos tienes un resumen listo para guardar o compartir.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="demo" class="section wrap">
+  <div class="section-head" style="margin-left:auto; margin-right:auto; text-align:center;">
+    <span class="eyebrow">Pruébalo tú mismo</span>
+    <h2>Escribe cualquier placa y mira el reporte armarse</h2>
+    <p style="margin-left:auto;margin-right:auto;">Esta demo genera un reporte de muestra en vivo para que veas cómo se siente usar InfoAuto.</p>
+  </div>
+
+  <div class="demo-shell">
+    <div class="plate-input-row" style="border:1px solid var(--line); border-radius:16px;">
+      <div class="plate-input">
+        <span class="peru-tab">PERÚ</span>
+        <input id="demoPlateInput" type="text" maxlength="7" placeholder="ABC123" autocomplete="off">
+      </div>
+      <button class="search-btn" id="demoBtn" onclick="runLookup()">🔍 Buscar</button>
+    </div>
+    <div class="report-progress"><div class="fill" id="progressFill"></div></div>
+    <div class="report-rows" id="reportRows"></div>
+    <p class="demo-note" id="demoNote">Los datos mostrados son simulados para fines de demostración — InfoAuto no está conectado a bases de datos oficiales en este momento.</p>
+  </div>
+</section>
+
+<section id="precios" class="section wrap">
+  <div class="section-head" style="margin-left:auto; margin-right:auto; text-align:center;">
+    <span class="eyebrow">Precios claros</span>
+    <h2>Paga solo por lo que consultas</h2>
+    <p style="margin-left:auto;margin-right:auto;">Sin suscripciones escondidas ni letra pequeña.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="plan-name">Básico</div>
+      <div class="old-price">S/ 1.00</div>
+      <div class="price">Gratis</div>
+      <div class="per">por consulta</div>
+      <ul>
+        <li>✅ Datos generales del vehículo</li>
+        <li>✅ Estado del SOAT</li>
+        <li>✅ Inspección técnica</li>
+        <li>✅ Reporte descargable</li>
+      </ul>
+      <a href="#demo" class="btn btn-ghost">Probar gratis</a>
+    </div>
+    <div class="price-card featured">
+      <span class="pop-badge">★ Más elegido</span>
+      <div class="plan-name">Completo</div>
+      <div class="old-price">S/ 16.00</div>
+      <div class="price"><span class="cur">S/</span>8.99</div>
+      <div class="per">por consulta</div>
+      <ul>
+        <li>✅ Todo lo del plan Básico</li>
+        <li>✅ Historial de propietarios</li>
+        <li>✅ Gravámenes y cargas</li>
+        <li>✅ Historial de robos y siniestros</li>
+        <li>✅ Orden de captura</li>
+        <li>✅ Papeletas y multas</li>
+        <li>✅ Reporte descargable</li>
+      </ul>
+      <a href="#demo" class="btn btn-amber">Obtener reporte</a>
+    </div>
+    <div class="price-card">
+      <div class="plan-name">Empresas</div>
+      <div class="old-price">S/ 700.00</div>
+      <div class="price"><span class="cur">S/</span>349</div>
+      <div class="per">por mes · 50 consultas</div>
+      <ul>
+        <li>✅ Todo lo del plan Completo</li>
+        <li>✅ Panel de administración</li>
+        <li>✅ API REST documentada</li>
+        <li>✅ Descarga masiva de reportes</li>
+        <li>✅ Soporte prioritario</li>
+      </ul>
+      <a href="#" class="btn btn-ghost">Ver planes empresas</a>
+    </div>
+  </div>
+</section>
+
+<section class="section wrap">
+  <div class="section-head">
+    <span class="eyebrow">Confianza</span>
+    <h2>Lo que dicen quienes ya lo usaron</h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card"><p>"Antes de comprar mi auto usado revisé el gravamen y descubrí que aún tenía una deuda pendiente. Me ahorré un problema grande."</p><div class="testi-who"><div class="avatar">R</div>Renzo, Lima</div></div>
+    <div class="testi-card"><p>"Lo uso para revisar mi propia flota antes de que venza el SOAT de cada unidad. Rápido y directo."</p><div class="testi-who"><div class="avatar">M</div>Milagros, Arequipa</div></div>
+    <div class="testi-card"><p>"El reporte completo me mostró el historial de propietarios exacto. Cerré la compra con la placa que quería."</p><div class="testi-who"><div class="avatar">J</div>Jhonatan, Trujillo</div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="logo" style="color:#fff;"><span class="plate-chip">IA-01</span>InfoAuto</div>
+      <div style="display:flex; gap:32px; flex-wrap:wrap;">
+        <a href="#funciones">Qué revisamos</a>
+        <a href="#precios">Precios</a>
+        <a href="#demo">Demo</a>
+      </div>
+    </div>
+    <div>© 2026 InfoAuto. Consulta vehicular referencial — no reemplaza documentos oficiales.</div>
+  </div>
+</footer>
+
+<button class="fab" title="Ayuda" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">💬</button>
+
+<script>
+function fillExample(plate){
+  document.getElementById('demoPlateInput').value = plate;
+}
+
+function hashSeed(str){
+  let h = 0;
+  for(let i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) >>> 0; }
+  return h;
+}
+
+function seededRand(seed){
+  let x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+const brandsList = ["Toyota Yaris","Hyundai Accent","Kia Rio","Chevrolet Sail","Nissan Versa","Suzuki Swift"];
+const colorsList = ["Blanco","Gris","Negro","Rojo","Azul","Plata"];
+
+function buildReportData(plate){
+  const seed = hashSeed(plate.toUpperCase());
+  const r = (i) => seededRand(seed + i * 97.13);
+
+  const owners = 1 + Math.floor(r(1) * 3);
+  const hasGravamen = r(2) > 0.82;
+  const soatOk = r(3) > 0.25;
+  const fines = Math.floor(r(4) * 4);
+  const hasTheftRecord = r(5) > 0.94;
+  const hasCaptureOrder = r(6) > 0.9;
+  const brand = brandsList[Math.floor(r(7) * brandsList.length)];
+  const color = colorsList[Math.floor(r(8) * colorsList.length)];
+  const year = 2014 + Math.floor(r(9) * 12);
+
+  return { owners, hasGravamen, soatOk, fines, hasTheftRecord, hasCaptureOrder, brand, color, year };
+}
+
+function runLookup(){
+  const heroVal = document.getElementById('plateInput').value.trim();
+  const demoInput = document.getElementById('demoPlateInput');
+  let plate = demoInput.value.trim() || heroVal;
+  if(!plate){ plate = "ABC123"; }
+  demoInput.value = plate.toUpperCase();
+
+  document.getElementById('demo').scrollIntoView({behavior:'smooth'});
+
+  const btn = document.getElementById('demoBtn');
+  const rowsWrap = document.getElementById('reportRows');
+  const fill = document.getElementById('progressFill');
+  rowsWrap.innerHTML = '';
+  fill.style.width = '0%';
+  btn.disabled = true;
+  btn.textContent = 'Buscando…';
+
+  setTimeout(()=>{ fill.style.width = '100%'; }, 60);
+
+  const data = buildReportData(plate);
+
+  const rows = [
+    { label:'Vehículo', icon:'🚗', bg:'#E7F0FE', tag: `${data.brand} · ${data.year}`, cls:'info' },
+    { label:'Propietarios', icon:'👤', bg:'#EFEAFB', tag: `${data.owners} registro${data.owners>1?'s':''}`, cls:'info' },
+    { label:'Gravámenes', icon:'🔒', bg:'#FDF2DC', tag: data.hasGravamen ? 'Gravamen activo' : 'Ninguno', cls: data.hasGravamen ? 'warn':'ok' },
+    { label:'SOAT', icon:'🛡️', bg:'#E7F0FE', tag: data.soatOk ? 'Vigente' : 'Vencido', cls: data.soatOk ? 'ok':'warn' },
+    { label:'Papeletas', icon:'📋', bg:'#EAEAF6', tag: data.fines === 0 ? 'Sin multas' : `${data.fines} pendiente${data.fines>1?'s':''}`, cls: data.fines===0 ? 'ok':'warn' },
+    { label:'Historial robo', icon:'⚠️', bg:'#FDECEC', tag: data.hasTheftRecord ? 'Con registro' : 'Sin registro', cls: data.hasTheftRecord ? 'warn':'ok' },
+    { label:'Orden de captura', icon:'🚫', bg:'#FDECEC', tag: data.hasCaptureOrder ? 'Vigente' : 'Sin orden', cls: data.hasCaptureOrder ? 'warn':'ok' },
+  ];
+
+  rows.forEach((row, i)=>{
+    const el = document.createElement('div');
+    el.className = 'report-row';
+    el.innerHTML = `<div class="left"><span class="ic" style="background:${row.bg}">${row.icon}</span>${row.label}</div><span class="tag ${row.cls}">${row.cls==='ok'?'✓':row.cls==='warn'?'!':'ℹ'} ${row.tag}</span>`;
+    rowsWrap.appendChild(el);
+    setTimeout(()=>{ el.classList.add('show'); }, 250 + i * 180);
+  });
+
+  setTimeout(()=>{
+    btn.disabled = false;
+    btn.textContent = '🔍 Buscar';
+  }, 250 + rows.length * 180 + 200);
+}
+
+document.getElementById('plateInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') runLookup();
+});
+document.getElementById('demoPlateInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') runLookup();
+});
+</script>
+
+</body>
+</html>
